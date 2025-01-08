@@ -23,6 +23,8 @@
  "dependencies": {
 
   "dotenv": "^16.4.7",
+  
+  "cloudinary": "^2.5.1",
 
   "express": "^4.21.2",
 
