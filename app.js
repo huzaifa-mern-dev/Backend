@@ -11,4 +11,7 @@ config({
 
 app.get("/", (req, res, next) => {
     res.send("Working");
-  });
+});
+
+app.use(errorMiddleware);
+
