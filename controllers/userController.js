@@ -39,3 +39,29 @@ export const register = asyncError(async (req, res, next) => {
   sendToken(user, res, "Register Successfully", 201);
 });
 
+export const login = asyncError(async (req, res, next) => {
+  const { email, password } = req.body;
+  const user = await UserCollection.findOne({ email }).select("+password");
+
+  if (!user) {
+    return res.status(400).json({
+      success: false,
+      message: "Incorrect Email",
+    });
+  }
+
+  if (!password)
+    return next(new ErrorHandler("Please Enter New Password,", 400));
+
+  // handle Error
+  const isMatched = await user;
+
+  if (!isMatched) {
+    return next(new ErrorHandler("Incorrect Password", 400));
+  }
+
+  sendToken(user, res, "Welcome Back, " + user.name, 200);
+});
+
+
+
