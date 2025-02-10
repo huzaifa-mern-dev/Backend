@@ -64,4 +64,18 @@ export const login = asyncError(async (req, res, next) => {
 });
 
 
+export const logOut = asyncError(async (req, res, next) => {
+  res
+    .status(200)
+    .cookie("token", "", {
+      ...cookieOptions,
+      expires: new Date(Date.now()),
+    })
+    .json({
+      success: true,
+      message: "Logged Out Succesfully",
+    });
+});
+
+
 
