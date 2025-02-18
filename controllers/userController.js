@@ -77,5 +77,25 @@ export const logOut = asyncError(async (req, res, next) => {
     });
 });
 
+export const updateProfile = asyncError(async (req, res, next) => {
+  const user = await UserCollection.findById(req.user._id);
+
+  const { name, email, address, city, country, pinCode } = req.body;
+
+  if (name) user.name = name;
+  if (email) user.email = email;
+  if (address) user.address = address;
+  if (city) user.city = city;
+  if (country) user.country = country;
+  if (pinCode) user.pinCode = pinCode;
+
+  await user.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Profile Updated Succesfully",
+  });
+});
+
 
 
