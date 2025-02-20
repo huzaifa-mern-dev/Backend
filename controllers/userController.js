@@ -98,4 +98,27 @@ export const updateProfile = asyncError(async (req, res, next) => {
 });
 
 
+export const updatePassword = asyncError(async (req, res, next) => {
+  const user = await UserCollection.findById(req.user._id).select("password");
+
+  const { oldPassword, newPassword } = req.body;
+
+  if (!oldPassword || !newPassword) return next();
+
+  const isMatched = await user.comparePassword(oldPassword);
+
+  if (!isMatched) return next(new ErrorHandler("Incorrect Old Password", 400));
+
+  user.password = newPassword;
+
+  await user.save();
+
+  req.status(200).json({
+    success: true,
+    message: "Password Change Succesfully",
+  });
+});
+
+
+
 
