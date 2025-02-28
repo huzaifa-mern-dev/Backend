@@ -119,6 +119,75 @@ export const updatePassword = asyncError(async (req, res, next) => {
   });
 });
 
+export const updatePic = asyncError(async (req, res, next) => {
+  try {
+    console.log(req.file);
+    const user = await UserCollection.findById(req.user._id);
+
+    const fileImage = getDataUri(req.file);
+
+
+
+    await cloudinary.v2.uploader.destroy(user.avatar.public_id);
+
+    const myCloudinaryImage = await cloudinary.v2.uploader.upload(
+      fileImage.content
+    );
+
+    user.avatar = {
+      public_id: myCloudinaryImage.public_id,
+      url: myCloudinaryImage.secure_url,
+    };
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Avatar Update Succesfully",
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: "avatar Change unsuccesfully",
+      console: error
+    });
+  }
+});
+
+export const forgetPassword = asyncError(async (req, res, next) => {
+  const { email } = req.body;
+  const user = await UserCollection.findOne({ email });
+
+  if (!user) return next(new ErrorHandler("Incorrect Email", 404));
+
+  const randomNumber = Math.random() * (999999 - 100000) + 100000;
+  const otp = Math.floor(randomNumber);
+  const otp_expire = 15 * 60 * 1000;
+
+  user.otp = otp;
+  user.otp_expire = new Date(Date.now() + otp_expire);
+
+  await user.save();
+  console.log(otp);
+
+  const message = `Your OTP For Resetting Password Is ${otp}.\n Please Ignore If You Haven't Request This.`;
+
+  try {
+    await sendEmail("OTP FOR RESETTING PASSWORD", user.email, message);
+  } catch (error) {
+    user.otp = null;
+    user.otp_expire = null;
+
+    await user.save();
+
+    return next(error);
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "Email Sent To " + user.email,
+  });
+});
+
 
 
 
